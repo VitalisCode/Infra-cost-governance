@@ -1,0 +1,192 @@
+name: Infracost Cost Governance
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+      - "infracost.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+env:
+  AWS_REGION: us-east-1
+  COST_THRESHOLD: 25
+
+jobs:
+
+  infracost:
+    name: Calculate Infrastructure Cost
+    runs-on: ubuntu-latest
+
+    outputs:
+      cost_increase: ${{ steps.cost.outputs.cost_increase }}
+      environment: ${{ steps.cost.outputs.environment }}
+
+    steps:
+
+      - name: Checkout PR
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Install Infracost
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
+          echo "$HOME/.infracost/bin" >> "$GITHUB_PATH"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_TERRAFORM_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+
+      # ---------------------------------------------------------
+      # Generate cost baseline from main branch
+      # ---------------------------------------------------------
+
+      - name: Checkout base branch
+        run: |
+          git fetch origin main
+          git checkout origin/main
+
+      - name: Terraform Init - Base
+        working-directory: terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+
+      - name: Generate baseline cost
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+        run: |
+          infracost breakdown \
+            --path terraform \
+            --format json \
+            --out-file infracost-base.json
+
+      # ---------------------------------------------------------
+      # Return to PR branch
+      # ---------------------------------------------------------
+
+      - name: Checkout PR branch
+        run: |
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - name: Terraform Init - PR
+        working-directory: terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+
+      # ---------------------------------------------------------
+      # Generate proposed cost
+      # ---------------------------------------------------------
+
+      - name: Generate cost diff
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+        run: |
+          infracost diff \
+            --path terraform \
+            --compare-to infracost-base.json \
+            --format json \
+            --out-file infracost.json
+
+      - name: Display cost diff
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+        run: |
+          infracost output \
+            --path infracost.json \
+            --format diff
+
+      # ---------------------------------------------------------
+      # Post comment
+      # ---------------------------------------------------------
+
+      - name: Post Infracost PR comment
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          infracost comment github \
+            --path infracost.json \
+            --github-token "$GH_TOKEN" \
+            --pull-request "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --behavior update
+
+      # ---------------------------------------------------------
+      # Cost threshold
+      # ---------------------------------------------------------
+
+      - name: Evaluate cost threshold
+        id: cost
+        run: |
+
+          COST_INCREASE=$(jq -r '
+            .diffTotalMonthlyCost // 0
+          ' infracost.json)
+
+          echo "Monthly cost increase: $COST_INCREASE"
+          echo "Threshold: $COST_THRESHOLD"
+
+          COST_INCREASE_INT=$(printf "%.0f" "$COST_INCREASE")
+
+          echo "cost_increase=$COST_INCREASE_INT" >> "$GITHUB_OUTPUT"
+
+          if [ "$COST_INCREASE_INT" -gt "$COST_THRESHOLD" ]; then
+
+            echo "Cost threshold exceeded."
+
+            echo "environment=cost-approval" >> "$GITHUB_OUTPUT"
+
+          else
+
+            echo "Cost is within the approved threshold."
+
+            echo "environment=cost-auto" >> "$GITHUB_OUTPUT"
+
+          fi
+
+      - name: Upload Infracost result
+        uses: actions/upload-artifact@v4
+        with:
+          name: infracost-result
+          path: infracost.json
+          retention-days: 5
+
+  # -------------------------------------------------------------
+  # Cost governance gate
+  # -------------------------------------------------------------
+
+  cost-gate:
+    name: Cost Governance Gate
+    needs: infracost
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ needs.infracost.outputs.environment }}
+
+    steps:
+
+      - name: Cost approval
+        run: |
+          echo "Infrastructure cost increase:"
+          echo "${{ needs.infracost.outputs.cost_increase }} USD/month"
+
+          echo "Cost governance gate passed."
