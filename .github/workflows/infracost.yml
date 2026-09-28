@@ -5,7 +5,10 @@ on:
     branches:
       - main
     paths:
-      - "terraform/**"
+      - "*.tf"
+      - "modules/**"
+      - "envs/**"
+      - ".terraform.lock.hcl"
       - "infracost.yml"
 
 permissions:
@@ -49,7 +52,6 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform Init
-        working-directory: terraform
         run: |
           terraform init \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
@@ -64,7 +66,6 @@ jobs:
           git checkout origin/main
 
       - name: Terraform Init - Base
-        working-directory: terraform
         run: |
           terraform init \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
@@ -74,7 +75,7 @@ jobs:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
         run: |
           infracost breakdown \
-            --path terraform \
+            --path . \
             --format json \
             --out-file infracost-base.json
 
@@ -87,7 +88,6 @@ jobs:
           git checkout ${{ github.event.pull_request.head.sha }}
 
       - name: Terraform Init - PR
-        working-directory: terraform
         run: |
           terraform init \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
@@ -101,7 +101,7 @@ jobs:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
         run: |
           infracost diff \
-            --path terraform \
+            --path . \
             --compare-to infracost-base.json \
             --format json \
             --out-file infracost.json

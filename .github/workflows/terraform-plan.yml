@@ -5,7 +5,10 @@ on:
     branches:
       - main
     paths:
-      - "terraform/**"
+      - "*.tf"
+      - "modules/**"
+      - "envs/**"
+      - ".terraform.lock.hcl"
       - "infracost.yml"
 
 permissions:
@@ -15,7 +18,7 @@ permissions:
 
 env:
   AWS_REGION: us-east-1
-  TF_WORKING_DIR: terraform
+  TF_WORKING_DIR: .
 
 jobs:
 
@@ -68,6 +71,6 @@ jobs:
         with:
           name: terraform-plan
           path: |
-            terraform/tfplan
-            terraform/tfplan.json
+            tfplan
+            tfplan.json
           retention-days: 5

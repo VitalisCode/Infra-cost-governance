@@ -89,7 +89,7 @@ The Terraform stack creates a simple production-like AWS environment:
 ## Repository structure
 
 - .github/workflows/ - CI/CD pipelines for plan, apply, and cost governance
-- terraform/ - Terraform root module and reusable child modules
+- Root Terraform files and modules/ - Terraform stack and reusable child modules
 - infracost.yml - Infracost project configuration
 
 ## Prerequisites
@@ -113,15 +113,12 @@ The database password is now managed by Amazon RDS using AWS-managed master cred
 
 ## Local usage
 
-1. Create a local variable file from the example:
+1. Create a local `terraform.tfvars` file using the variable definitions in `variables.tf`.
 
-   cp terraform/terraform.tfvars.example terraform/terraform.tfvars
-
-2. Update the values in terraform/terraform.tfvars as needed.
+2. Set the project and environment values in `terraform.tfvars` as needed. This file is ignored by Git.
 
 3. Initialize the remote backend using your state bucket:
 
-   cd terraform
    terraform init -backend-config="bucket=<your-tf-state-bucket>"
 
 4. Review the planned changes:
@@ -156,7 +153,6 @@ This repository has three main GitHub Actions workflows:
 
 To validate the stack locally without a live AWS backend connection (use dummy AWS credentials only for smoke testing):
 
-  cd terraform
   terraform init -backend=false -reconfigure
   AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy AWS_DEFAULT_REGION=us-east-1 terraform validate
 
