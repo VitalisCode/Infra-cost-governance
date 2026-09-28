@@ -62,8 +62,11 @@ jobs:
 
       - name: Checkout base branch
         run: |
+          cp envs/dev.tfvars /tmp/dev.tfvars
           git fetch origin main
           git checkout origin/main
+          mkdir -p envs
+          cp /tmp/dev.tfvars envs/dev.tfvars
 
       - name: Terraform Init - Base
         run: |
@@ -76,6 +79,7 @@ jobs:
         run: |
           infracost breakdown \
             --path . \
+            --terraform-var-file envs/dev.tfvars \
             --format json \
             --out-file infracost-base.json
 
@@ -85,6 +89,7 @@ jobs:
 
       - name: Checkout PR branch
         run: |
+          rm -f envs/dev.tfvars
           git checkout ${{ github.event.pull_request.head.sha }}
 
       - name: Terraform Init - PR
@@ -102,6 +107,7 @@ jobs:
         run: |
           infracost diff \
             --path . \
+            --terraform-var-file envs/dev.tfvars \
             --compare-to infracost-base.json \
             --format json \
             --out-file infracost.json

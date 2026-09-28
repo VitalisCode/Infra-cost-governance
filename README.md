@@ -113,25 +113,23 @@ The database password is now managed by Amazon RDS using AWS-managed master cred
 
 ## Local usage
 
-1. Create a local `terraform.tfvars` file using the variable definitions in `variables.tf`.
+1. Review `envs/dev.tfvars` and adjust the non-secret development values as needed.
 
-2. Set the project and environment values in `terraform.tfvars` as needed. This file is ignored by Git.
-
-3. Initialize the remote backend using your state bucket:
+2. Initialize the remote backend using your state bucket:
 
    terraform init -backend-config="bucket=<your-tf-state-bucket>"
 
-4. Review the planned changes:
+3. Review the planned changes:
 
-   terraform plan -var-file="terraform.tfvars"
+   terraform plan -var-file="envs/dev.tfvars"
 
-5. Apply the infrastructure:
+4. Apply the infrastructure:
 
-   terraform apply -var-file="terraform.tfvars"
+   terraform apply -var-file="envs/dev.tfvars"
 
-6. Destroy when needed:
+5. Destroy when needed:
 
-   terraform destroy -var-file="terraform.tfvars"
+   terraform destroy -var-file="envs/dev.tfvars"
 
 > The S3 backend is required for this repo. You must provide the bucket name during init because it is not checked into the repository as a secret.
 

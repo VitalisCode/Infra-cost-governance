@@ -10,6 +10,7 @@ crash.*.log
 # Terraform variable files
 *.tfvars
 *.tfvars.json
+!envs/dev.tfvars
 
 # Local AWS environment config
 .config

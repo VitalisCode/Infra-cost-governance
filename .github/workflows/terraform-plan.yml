@@ -58,6 +58,7 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           terraform plan \
+            -var-file="envs/dev.tfvars" \
             -out=tfplan
 
       - name: Convert Plan to JSON
