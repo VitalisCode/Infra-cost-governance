@@ -65,13 +65,29 @@ jobs:
 
       - name: Checkout base branch
         run: |
-          git fetch origin main
+          git fetch origin main || true
           BASE_DIR="$RUNNER_TEMP/base"
           rm -rf "$BASE_DIR"
-          git worktree add --detach "$BASE_DIR" origin/main
-          if [ -f envs/dev.tfvars ]; then
-            cp envs/dev.tfvars "$BASE_DIR/envs/dev.tfvars"
+
+          if git show-ref --verify --quiet refs/remotes/origin/main; then
+            git worktree add --detach "$BASE_DIR" origin/main
+          else
+            mkdir -p "$BASE_DIR"
+            echo "::warning::origin/main is unavailable or empty; falling back to the current branch tfvars file for the baseline comparison."
           fi
+
+          mkdir -p "$BASE_DIR/envs"
+
+          if [ -f "$BASE_DIR/envs/dev.tfvars" ]; then
+            echo "Using existing main-branch tfvars file."
+          elif [ -f envs/dev.tfvars ]; then
+            cp envs/dev.tfvars "$BASE_DIR/envs/dev.tfvars"
+            echo "Copied current PR tfvars file into the base worktree for comparison."
+          else
+            echo "::error::No envs/dev.tfvars file is available for the baseline comparison."
+            exit 1
+          fi
+
           echo "BASE_DIR=$BASE_DIR" >> "$GITHUB_ENV"
 
       - name: Terraform Init - Base
