@@ -161,17 +161,27 @@ jobs:
       # ---------------------------------------------------------
 
       - name: Post Infracost PR comment
-        continue-on-error: true
         env:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          infracost comment github \
+          set +e
+          COMMENT_OUTPUT=$(infracost comment github \
             --path infracost.json \
             --github-token "$GH_TOKEN" \
             --pull-request "${{ github.event.pull_request.number }}" \
             --repo "${{ github.repository }}" \
-            --behavior update
+            --behavior update 2>&1)
+          COMMENT_STATUS=$?
+          echo "$COMMENT_OUTPUT"
+
+          if [ "$COMMENT_STATUS" -ne 0 ]; then
+            echo "::warning::Infracost PR comment failed. Reason:"
+            echo "$COMMENT_OUTPUT"
+            echo "The cost diff was still generated, but the GitHub comment step was rejected by Infracost governance or policy checks."
+          fi
+
+          exit 0
 
       # ---------------------------------------------------------
       # Cost threshold
