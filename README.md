@@ -101,13 +101,18 @@ Before using the project, make sure you have:
 - An S3 bucket for the Terraform remote state
 - A GitHub repository configured with the required secrets listed below
 
-## Required GitHub secrets
+## GitHub Actions AWS authentication
 
-For the CI workflows to work, add these repository secrets:
+Use GitHub Actions OIDC as the preferred AWS authentication method. OIDC exchanges a short-lived GitHub identity token for temporary AWS credentials, avoiding long-lived AWS access keys in GitHub secrets. Configure the AWS IAM OIDC provider and a role trust policy restricted to this repository and the appropriate GitHub Actions subjects, then grant the workflows `id-token: write` and configure `aws-actions/configure-aws-credentials` with `role-to-assume`.
 
-- AWS_TERRAFORM_ROLE_ARN
+The workflows currently use `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` GitHub secrets as a temporary troubleshooting setup. Switch them back to OIDC after resolving role assumption, and revoke/rotate any static keys used for this test. Never commit credential values.
+
+Other required GitHub repository Actions secrets:
+
 - TF_STATE_BUCKET
 - INFRACOST_API_KEY
+
+For the temporary static-key configuration only, also set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to credentials from a dedicated, least-privilege IAM user.
 
 The database password is now managed by Amazon RDS using AWS-managed master credentials in AWS Secrets Manager, so direct `TF_RDS_PASSWORD` input is no longer required for the GitHub Actions pipeline.
 
