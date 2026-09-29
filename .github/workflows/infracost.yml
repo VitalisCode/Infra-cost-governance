@@ -65,15 +65,18 @@ jobs:
 
       - name: Checkout base branch
         run: |
-          cp envs/dev.tfvars /tmp/dev.tfvars
           git fetch origin main
-          git checkout origin/main
-          mkdir -p envs
-          cp /tmp/dev.tfvars envs/dev.tfvars
+          BASE_DIR="$RUNNER_TEMP/base"
+          rm -rf "$BASE_DIR"
+          git worktree add --detach "$BASE_DIR" origin/main
+          if [ -f envs/dev.tfvars ]; then
+            cp envs/dev.tfvars "$BASE_DIR/envs/dev.tfvars"
+          fi
+          echo "BASE_DIR=$BASE_DIR" >> "$GITHUB_ENV"
 
       - name: Terraform Init - Base
         run: |
-          terraform init \
+          terraform -chdir="$BASE_DIR" init \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
 
       - name: Generate baseline cost
@@ -81,10 +84,11 @@ jobs:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
         run: |
           infracost breakdown \
-            --path . \
-            --terraform-var-file envs/dev.tfvars \
+            --path "$BASE_DIR" \
+            --terraform-var-file "$BASE_DIR/envs/dev.tfvars" \
             --format json \
-            --out-file infracost-base.json
+            --out-file "$BASE_DIR/infracost-base.json"
+          cp "$BASE_DIR/infracost-base.json" infracost-base.json
 
       # ---------------------------------------------------------
       # Return to PR branch
@@ -92,7 +96,6 @@ jobs:
 
       - name: Checkout PR branch
         run: |
-          rm -f envs/dev.tfvars
           git checkout ${{ github.event.pull_request.head.sha }}
 
       - name: Terraform Init - PR
@@ -111,7 +114,7 @@ jobs:
           infracost diff \
             --path . \
             --terraform-var-file envs/dev.tfvars \
-            --compare-to infracost-base.json \
+            --compare-to "$BASE_DIR/infracost-base.json" \
             --format json \
             --out-file infracost.json
 
