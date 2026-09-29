@@ -119,9 +119,10 @@ jobs:
         env:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
         run: |
+          set -o pipefail
           infracost output \
             --path infracost.json \
-            --format diff
+            --format diff | tee infracost-diff.txt
 
       - name: Add cost analysis to run summary
         env:
@@ -188,7 +189,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: infracost-result
-          path: infracost.json
+          path: |
+            infracost-base.json
+            infracost.json
+            infracost-diff.txt
           retention-days: 5
 
   # -------------------------------------------------------------
