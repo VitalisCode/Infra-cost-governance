@@ -123,6 +123,18 @@ jobs:
             --path infracost.json \
             --format diff
 
+      - name: Add cost analysis to run summary
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+        run: |
+          {
+            echo '## Infracost cost analysis'
+            echo
+            infracost output \
+              --path infracost.json \
+              --format github-comment
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # ---------------------------------------------------------
       # Post comment
       # ---------------------------------------------------------
