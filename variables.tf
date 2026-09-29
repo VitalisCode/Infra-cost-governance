@@ -59,7 +59,7 @@ variable "ecs_memory" {
 variable "ecs_desired_count" {
   description = "Number of ECS tasks"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "rds_instance_class" {
