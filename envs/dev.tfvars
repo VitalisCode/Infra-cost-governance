@@ -9,7 +9,7 @@ availability_zones = ["us-east-1a", "us-east-1b"]
 ecs_container_image = "public.ecr.aws/docker/library/nginx:alpine"
 ecs_cpu             = 256
 ecs_memory          = 512
-ecs_desired_count   = 1
+ecs_desired_count   = 5
 
 rds_instance_class = "db.t3.micro"
 rds_engine_version = "8.0"
