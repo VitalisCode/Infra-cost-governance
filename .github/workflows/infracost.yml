@@ -161,6 +161,7 @@ jobs:
       # ---------------------------------------------------------
 
       - name: Post Infracost PR comment
+        continue-on-error: true
         env:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
           GH_TOKEN: ${{ github.token }}
