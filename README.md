@@ -140,7 +140,6 @@ This repository has three main GitHub Actions workflows:
 - Terraform Plan: runs on pull requests and validates formatting, init, and plan output
 - Infracost Cost Governance: compares the PR branch against the main branch and blocks cost increases above the threshold
 - Terraform Apply: runs on pushes to main and deploys the infrastructure to AWS
-- 
 
 ## Notes
 
