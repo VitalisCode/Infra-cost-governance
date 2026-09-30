@@ -174,6 +174,21 @@ In other words:
 
 Without that environment protection, the workflow will still set the environment name, but it will not show a reviewer approval step.
 
+## GitHub environment setup for manual approval
+
+To make the `cost-approval` gate work as an actual pause for review, create and configure the GitHub Environment in the repository:
+
+1. Go to the repository in GitHub.
+2. Open `Settings`.
+3. Select `Environments` from the left navigation.
+4. Click `New environment`.
+5. Name the environment exactly `cost-approval`.
+6. Enable `Required reviewers` and add the users or teams that should approve cost overruns.
+7. Optionally enable a `Wait timer` if you want a short delay before the next step continues.
+8. Save the environment.
+
+Once this environment exists with protection rules, a PR whose cost exceeds the configured threshold will pause at the `cost-gate` job until an approver approves it.
+
 ## Notes
 
 - The root Terraform configuration keeps AWS tags consistent across all resources.
