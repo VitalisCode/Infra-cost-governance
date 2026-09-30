@@ -6,6 +6,10 @@ It provisions a small AWS workload with Terraform and uses GitHub Actions plus I
 
 This repo is not primarily a security pipeline project or a general platform governance framework. Its specific value is cost analysis in CI/CD, helping developers and reviewers understand the financial effect of infrastructure changes before apply.
 
+### Infrastructure architecture
+
+![Infrastructure architecture diagram](docs/screenshots/infra%20cost.png)
+
 ## What is Infracost?
 
 Infracost is an infrastructure cost estimation tool for Terraform and cloud infrastructure code. It reads the Terraform configuration and estimates expected cloud costs based on the resources being created or changed.
@@ -208,10 +212,6 @@ To make the `cost-approval` gate work as an actual pause for review, create and 
 Once this environment exists with protection rules, a PR whose cost exceeds the configured threshold will pause at the `cost-gate` job until an approver approves it.
 
 ## Screenshots
-
-### Infrastructure architecture
-
-![Infrastructure architecture diagram](docs/screenshots/infra%20cost.png)
 
 ### Infracost cost summary
 
