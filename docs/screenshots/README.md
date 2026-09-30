@@ -1,7 +1,9 @@
 # Screenshots folder
 
-- github-actions-cost-summary.png
-- github-actions-pr-cost-summary.png
-- github-actions-workflow-overview.png
+This folder is reserved for exported GitHub Actions screenshots. The PNG files are not currently included in the repository. The root README links to the successful workflow run until the actual images are added here.
 
-These files are referenced from the main README.
+Recommended filenames:
+
+- `github-actions-cost-summary.png`
+- `github-actions-pr-cost-summary.png`
+- `github-actions-workflow-overview.png`

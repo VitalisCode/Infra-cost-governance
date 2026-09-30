@@ -209,11 +209,9 @@ Once this environment exists with protection rules, a PR whose cost exceeds the 
 
 ## Screenshots
 
-The screenshots below are intended to show the successful cost-validation workflow in GitHub Actions.
-![GitHub Actions cost summary](docs/screenshots/github-actions-cost-summary.png)
+View the [successful GitHub Actions run](https://github.com/VitalisCode/Infra-cost-governance/actions/runs/36585043002) to see the cost analysis summary and workflow results. The run reports an estimated monthly cost increase of $203.
 
-![GitHub Actions PR cost summary](docs/screenshots/github-actions-pr-cost-summary.png)
-
+To embed screenshots directly in this README, add the exported PNG files to `docs/screenshots/` and reference the committed paths here. The image files are not currently in the repository, so image embeds would show as broken links.
 
 ## Notes
 
