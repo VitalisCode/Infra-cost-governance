@@ -1,0 +1,59 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "*.tf"
+      - "modules/**"
+      - "envs/**"
+      - ".terraform.lock.hcl"
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+
+  terraform-apply:
+    name: Apply Infrastructure
+    runs-on: ubuntu-latest
+
+    environment:
+      name: development
+
+    concurrency:
+      group: terraform-development
+      cancel-in-progress: false
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Apply
+        run: |
+          terraform apply \
+            -var-file="envs/dev.tfvars" \
+            -auto-approve
