@@ -1,6 +1,10 @@
 # Infra Cost Governance
 
-This project provisions a small AWS workload using Terraform and enforces cost checks through GitHub Actions and Infracost before infrastructure is applied.
+This project is focused on one main goal: bringing infrastructure cost visibility into the delivery pipeline.
+
+It provisions a small AWS workload with Terraform and uses GitHub Actions plus Infracost to show the cost impact of infrastructure changes before they are merged. The purpose is to make cloud spend visible early in the workflow, so engineering teams can reason about cost impact without treating it as a separate post-deployment concern.
+
+This repo is not primarily a security pipeline project or a general platform governance framework. Its specific value is cost analysis in CI/CD, helping developers and reviewers understand the financial effect of infrastructure changes before apply.
 
 ## Architecture overview
 
