@@ -17,7 +17,7 @@ permissions:
 
 env:
   AWS_REGION: us-east-1
-  COST_THRESHOLD: 25
+  COST_THRESHOLD: 200
   INFRACOST_SKIP_UPDATE_CHECK: "true"
 
 jobs:
