@@ -146,6 +146,34 @@ This repository has three main GitHub Actions workflows:
 - Infracost Cost Governance: compares the PR branch against the main branch and blocks cost increases above the threshold
 - Terraform Apply: runs on pushes to main and deploys the infrastructure to AWS
 
+## Cost approval gate
+
+The threshold is defined in the workflow as `COST_THRESHOLD` and is compared against the calculated monthly cost increase:
+
+```yaml
+env:
+  COST_THRESHOLD: 25
+```
+
+The evaluation logic is:
+
+```yaml
+if [ "$COST_INCREASE_INT" -gt "$COST_THRESHOLD" ]; then
+  echo "environment=cost-approval" >> "$GITHUB_OUTPUT"
+else
+  echo "environment=cost-auto" >> "$GITHUB_OUTPUT"
+fi
+```
+
+This does not by itself pause the workflow. The actual manual approval happens through a GitHub Environment named `cost-approval` that must be configured in the repository with required reviewers or approval rules enabled.
+
+In other words:
+
+- `cost-auto` means the increase is within budget and the workflow continues normally
+- `cost-approval` means the increase is above budget, and GitHub will only stop for review if the `cost-approval` environment has protection rules configured
+
+Without that environment protection, the workflow will still set the environment name, but it will not show a reviewer approval step.
+
 ## Notes
 
 - The root Terraform configuration keeps AWS tags consistent across all resources.
