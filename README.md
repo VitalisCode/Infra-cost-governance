@@ -193,6 +193,14 @@ To make the `cost-approval` gate work as an actual pause for review, create and 
 
 Once this environment exists with protection rules, a PR whose cost exceeds the configured threshold will pause at the `cost-gate` job until an approver approves it.
 
+## Screenshots
+
+The screenshots below are intended to show the successful cost-validation workflow in GitHub Actions.
+![GitHub Actions cost summary](docs/screenshots/github-actions-cost-summary.png)
+
+![GitHub Actions PR cost summary](docs/screenshots/github-actions-pr-cost-summary.png)
+
+
 ## Notes
 
 - The root Terraform configuration keeps AWS tags consistent across all resources.
