@@ -209,6 +209,10 @@ Once this environment exists with protection rules, a PR whose cost exceeds the 
 
 ## Screenshots
 
+### Infrastructure architecture
+
+![Infrastructure architecture diagram](docs/screenshots/infra%20cost.png)
+
 ### Infracost cost summary
 
 ![GitHub Actions Infracost cost summary](docs/screenshots/fg1.PNG)
