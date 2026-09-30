@@ -209,9 +209,15 @@ Once this environment exists with protection rules, a PR whose cost exceeds the 
 
 ## Screenshots
 
-View the [successful GitHub Actions run](https://github.com/VitalisCode/Infra-cost-governance/actions/runs/36585043002) to see the cost analysis summary and workflow results. The run reports an estimated monthly cost increase of $203.
+### Infracost cost summary
 
-To embed screenshots directly in this README, add the exported PNG files to `docs/screenshots/` and reference the committed paths here. The image files are not currently in the repository, so image embeds would show as broken links.
+![GitHub Actions Infracost cost summary](docs/screenshots/fg1.PNG)
+
+### Workflow run overview
+
+![Successful GitHub Actions workflow overview](docs/screenshots/fg2.PNG)
+
+The screenshots show the successful cost-analysis workflow and its estimated monthly cost increase of $203. [View the full GitHub Actions run](https://github.com/VitalisCode/Infra-cost-governance/actions/runs/36585043002).
 
 ## Notes
 
