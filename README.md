@@ -217,7 +217,6 @@ Once this environment exists with protection rules, a PR whose cost exceeds the 
 
 ![Successful GitHub Actions workflow overview](docs/screenshots/fg2.PNG)
 
-The screenshots show the successful cost-analysis workflow and its estimated monthly cost increase of $203. [View the full GitHub Actions run](https://github.com/VitalisCode/Infra-cost-governance/actions/runs/36585043002).
 
 ## Notes
 
