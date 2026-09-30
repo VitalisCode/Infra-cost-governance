@@ -19,14 +19,6 @@ In this project, Infracost is used to:
 
 The key file for this is `infracost.yml`, which tells Infracost which Terraform project to analyze and how to structure the cost report.
 
-## Why `INFRACOST_API_KEY` is required
-
-The `INFRACOST_API_KEY` secret is used to authenticate the GitHub Actions workflow with Infracost Cloud and to enable features like cost reporting, comment updates, and cost policy checks.
-
-It is not the same as AWS credentials and is not used to deploy resources. Its purpose is specifically to support cost analysis and reporting.
-
-You must create an Infracost account and add the API key as a GitHub repository secret named `INFRACOST_API_KEY` before the Infracost workflow can run successfully.
-
 ## Architecture overview
 
           ┌──────────────────────┐
@@ -124,6 +116,7 @@ Before using the project, make sure you have:
 - Terraform 1.9+ installed
 - AWS credentials or an IAM role with permissions to create VPC, ECS, S3, and RDS resources
 - An S3 bucket for the Terraform remote state
+- You must create an Infracost account and add the API key as a GitHub repository secret named `INFRACOST_API_KEY` before the Infracost workflow can run successfully.
 - A GitHub repository configured with the required secrets listed below
 
 ## GitHub Actions AWS authentication
