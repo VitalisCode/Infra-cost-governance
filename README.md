@@ -6,6 +6,27 @@ It provisions a small AWS workload with Terraform and uses GitHub Actions plus I
 
 This repo is not primarily a security pipeline project or a general platform governance framework. Its specific value is cost analysis in CI/CD, helping developers and reviewers understand the financial effect of infrastructure changes before apply.
 
+## What is Infracost?
+
+Infracost is an infrastructure cost estimation tool for Terraform and cloud infrastructure code. It reads the Terraform configuration and estimates expected cloud costs based on the resources being created or changed.
+
+In this project, Infracost is used to:
+
+- estimate the cost of the current branch
+- compare that estimate against the main branch baseline
+- show the cost delta in pull requests
+- help block or flag expensive changes before they are merged
+
+The key file for this is `infracost.yml`, which tells Infracost which Terraform project to analyze and how to structure the cost report.
+
+## Why `INFRACOST_API_KEY` is required
+
+The `INFRACOST_API_KEY` secret is used to authenticate the GitHub Actions workflow with Infracost Cloud and to enable features like cost reporting, comment updates, and cost policy checks.
+
+It is not the same as AWS credentials and is not used to deploy resources. Its purpose is specifically to support cost analysis and reporting.
+
+You must create an Infracost account and add the API key as a GitHub repository secret named `INFRACOST_API_KEY` before the Infracost workflow can run successfully.
+
 ## Architecture overview
 
           ┌──────────────────────┐
@@ -113,8 +134,8 @@ The workflows currently use `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` GitH
 
 Other required GitHub repository Actions secrets:
 
-- TF_STATE_BUCKET
-- INFRACOST_API_KEY
+- `TF_STATE_BUCKET` - the S3 bucket used for Terraform remote state
+- `INFRACOST_API_KEY` - the API key for Infracost Cloud used by the cost analysis workflow
 
 For the temporary static-key configuration only, also set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to credentials from a dedicated, least-privilege IAM user.
 
